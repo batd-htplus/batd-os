@@ -46,7 +46,7 @@
     "vite": "catalog:"
   },
   "devDependencies": {
-    "@oxlint/plugins": "1.73.0",
+    "@oxlint/plugins": "1.83.0",
     "@types/node": "26.1.0",
     "jsdom": "^26.1.0"
   }

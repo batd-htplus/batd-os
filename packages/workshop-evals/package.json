@@ -14,8 +14,8 @@
     "@gadgets/integration-tests": "workspace:*",
     "@gadgets/workshop-shared": "workspace:*",
     "capnweb": "catalog:",
-    "vitest-evals": "0.16.1",
-    "zod": "^4.5.4"
+    "vitest-evals": "0.17.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "catalog:",
