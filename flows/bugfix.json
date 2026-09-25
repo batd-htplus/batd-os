@@ -1,0 +1,16 @@
+{
+    "id": "bugfix",
+    "version": 1,
+    "truth": "current-code",
+    "steps": [
+        {
+            "id": "fix",
+            "instructions": "Fix the reported defect.\n\n1. Find the root cause in the current code.\n2. Add a regression test that fails before the fix and passes after it.\n3. Make the smallest change that fixes the cause, keeping existing behaviour elsewhere.\n\nIn your final answer, state the root cause and the regression test you added.",
+            "needs": { "repo": { "budget": 8000 } },
+            "output": "fix-summary.md",
+            "checks": ["test"],
+            "retry": 3,
+            "permissions": { "edit": true }
+        }
+    ]
+}

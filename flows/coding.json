@@ -1,0 +1,25 @@
+{
+    "id": "coding",
+    "version": 1,
+    "truth": "requirements",
+    "steps": [
+        {
+            "id": "plan",
+            "instructions": "Read the code relevant to the task and write an implementation plan. Do not modify files.\n\nThe plan covers: requirements restated, affected files, ordered steps, risks, and how each requirement will be verified.\n\nEnd your answer with a fenced ```json block of acceptance criteria:\n{\"items\": [{\"id\": \"AC-001\", \"statement\": \"observable behaviour\", \"source\": \"task\", \"verify_by\": [\"test\"]}]}\nEach verify_by entry must name a check available in this project.",
+            "needs": { "repo": { "budget": 6000 } },
+            "output": "plan.md",
+            "checks": ["plan-has-acceptance"],
+            "approval": true,
+            "retry": 1,
+            "permissions": { "edit": false }
+        },
+        {
+            "id": "implement",
+            "instructions": "Implement the approved plan. Add or update tests so every acceptance criterion is covered. Run the project's checks yourself before finishing and fix what fails.",
+            "needs": { "plan": { "budget": 6000 }, "acceptance": { "budget": 1000 }, "repo": { "budget": 3000 } },
+            "checks": ["test", "acceptance-covered"],
+            "retry": 3,
+            "permissions": { "edit": true }
+        }
+    ]
+}

@@ -1,23 +1,18 @@
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["ESNext"],
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "allowJs": true,
-    "strict": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    // tsgo's default parallel checkers each keep separate type caches, so every
-    // checker re-derives capnweb's recursive type graphs; single-threaded is
-    // both faster and smaller here. Measurements in AGENTS.md.
-    "singleThreaded": true
-  },
-  "include": [],
-  "exclude": ["node_modules", "dist"]
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
+        "types": ["node"],
+        "strict": true,
+        "noEmit": true,
+        "erasableSyntaxOnly": true,
+        "verbatimModuleSyntax": true,
+        "allowImportingTsExtensions": true,
+        "rewriteRelativeImportExtensions": false,
+        "skipLibCheck": true,
+        "noUnusedLocals": true
+    },
+    "include": ["src", "tests"],
+    "exclude": ["ecc", "cloudflare-os", "node_modules", ".flow"]
 }

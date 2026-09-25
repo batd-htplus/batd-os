@@ -1,0 +1,8 @@
+{
+    "id": "core",
+    "instructions": "instructions.md",
+    "checks": {
+        "plan-has-acceptance": { "kind": "plan-has-acceptance" },
+        "acceptance-covered": { "kind": "acceptance-covered" }
+    }
+}
