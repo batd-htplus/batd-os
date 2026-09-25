@@ -205,7 +205,14 @@ async function verify(deps: RunnerDeps, state: TaskState, step: StepDef, st: Ste
         }
         deps.log?.(`${step.id}: check ${name} ${result.pass ? "passed" : "FAILED"}`);
     }
-    if (failures.length > 0) return retryOrAsk(deps, step, st, failures.join("\n\n"));
+    if (failures.length > 0) {
+        let feedback = failures.join("\n\n");
+        let noProgress = noProgressReason(step, st, feedback);
+        if (noProgress !== undefined) {
+            return requestApproval(deps, step, "retries", `${noProgress}; retrying would repeat it:\n${feedback}`);
+        }
+        return retryOrAsk(deps, step, st, feedback);
+    }
     try {
         commitBarrier(ledger, deps.git, state.worktree, step.id, st.attempt);
     } catch (err) {
@@ -219,6 +226,21 @@ function finish(deps: RunnerDeps, step: StepDef): void {
         return requestApproval(deps, step, "step", `review ${what} before the workflow continues`);
     }
     deps.ledger.append("StepCompleted", {}, step.id);
+}
+
+// Timings and counters differ between otherwise identical failures.
+const failureShape = (text: string): string => text.replace(/\d+(\.\d+)?/g, "#");
+
+/**
+ * Why another attempt would only repeat this one, or undefined when a retry can make progress:
+ * an editing step whose engine changed nothing, or the same failure as the previous attempt.
+ */
+function noProgressReason(step: StepDef, st: StepState, feedback: string): string | undefined {
+    if (step.permissions?.edit && st.changedFiles.length === 0) return "the engine changed no files";
+    if (st.feedback !== undefined && failureShape(st.feedback) === failureShape(feedback)) {
+        return "the check failed the same way as the previous attempt";
+    }
+    return undefined;
 }
 
 /** Another attempt while the step has attempts left; otherwise a human decides. */

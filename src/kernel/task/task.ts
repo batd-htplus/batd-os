@@ -19,7 +19,8 @@ export function ensureFlowDir(flowDir: string): void {
 
 function newTaskId(goal: string, now: Date): string {
     let stamp = now.toISOString().replace(/[-:]/g, "").replace("T", "-").slice(0, 15);
-    let slug = goal.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+    let slug = goal.toLowerCase().normalize("NFKD").replace(/\p{M}/gu, "").replace(/đ/g, "d")
+        .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
         .slice(0, 24).replace(/-$/, "");
     return `${stamp}-${slug || "task"}`;
 }

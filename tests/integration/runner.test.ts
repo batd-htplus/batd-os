@@ -42,6 +42,7 @@ const writeOk = (worktree: string) => writeFileSync(join(worktree, "ok.txt"), "o
 test("coding flow: plan, approval, failed check, retry with feedback, barrier commit, done", async () => {
     let { deps, ledger, engine, state } = setup(req => {
         if (req.stepId === "plan") return { output: PLAN };
+        if (req.attempt === 1) writeFileSync(join(req.workingDirectory, "draft.txt"), "wip\n");
         if (req.attempt === 2) writeOk(req.workingDirectory);
     });
 
@@ -68,7 +69,7 @@ test("coding flow: plan, approval, failed check, retry with feedback, barrier co
     let commit = s.steps.implement.commit!;
     assert.match(commit, /^[0-9a-f]{40}$/);
     let files = execFileSync("git", ["show", "--name-only", "--format=", commit], { cwd: state().worktree, encoding: "utf8" });
-    assert.equal(files.trim(), "ok.txt");
+    assert.deepEqual(files.trim().split("\n").sort(), ["draft.txt", "ok.txt"]);
     let types = ledger.events().map(e => e.type);
     assert.ok(types.includes("CheckFailed") && types.includes("StepRetry") && types.includes("BarrierCommitted"));
     assert.equal(types.at(-1), "TaskCompleted");
@@ -90,10 +91,16 @@ test("rejecting with a note redoes the step with the note as feedback", async ()
 const oneStep = (retry: number): WorkflowDef => ({ id: "one", version: 1, steps: [
     { id: "build", instructions: "make ok.txt", checks: ["test"], retry, permissions: { edit: true } },
 ] });
+// A check whose output differs whenever the engine wrote a different file.
+const listingCheck: ProjectConfig = { checks: { test: { kind: "command", run: "ls; test -f ok.txt" } } };
+const writeNth = (dir: string, n: number) => writeFileSync(join(dir, `step-${"abcdefgh"[n]}.txt`), "x\n");
 
 test("exhausted retries wait for a human, and approval grants another round", async () => {
     let calls = 0;
-    let { deps, ledger } = setup(req => { if (++calls === 3) writeOk(req.workingDirectory); }, { workflow: oneStep(1) });
+    let { deps, ledger } = setup(req => {
+        if (++calls === 3) writeOk(req.workingDirectory);
+        else writeNth(req.workingDirectory, calls);
+    }, { workflow: oneStep(1), config: listingCheck });
     let s = await advance(deps);
     assert.equal(s.status, "awaiting_approval");
     assert.equal(s.pendingApproval?.subject, "retries");
@@ -129,12 +136,39 @@ test("changing protected config pauses for approval before checks run", async ()
 });
 
 test("a spent task budget asks before running the engine again", async () => {
-    let { deps, engine } = setup(() => {}, { workflow: oneStep(3), config: { budget: { taskUsd: 0.15 } } });
+    let calls = 0;
+    let { deps, engine } = setup(req => writeNth(req.workingDirectory, ++calls),
+        { workflow: oneStep(3), config: { ...listingCheck, budget: { taskUsd: 0.15 } } });
     let s = await advance(deps);
     assert.equal(s.status, "awaiting_approval");
     assert.equal(s.pendingApproval?.subject, "budget");
     assert.equal(engine.requests.length, 2);
     assert.ok(engine.requests[1].maxBudgetUsd! <= 0.05 + 1e-9);
+});
+
+test("an editing step whose engine changed nothing asks instead of retrying", async () => {
+    let { deps, engine } = setup(() => ({ output: "There is no defect to fix." }), { workflow: oneStep(3) });
+    let s = await advance(deps);
+    assert.equal(s.status, "awaiting_approval");
+    assert.equal(s.pendingApproval?.subject, "retries");
+    assert.match(s.pendingApproval!.reason, /engine changed no files/);
+    assert.equal(engine.requests.length, 1);
+});
+
+test("the same failure twice asks instead of retrying again", async () => {
+    let { deps, engine } = setup(req => writeFileSync(join(req.workingDirectory, "draft.txt"), `wip ${req.attempt}\n`),
+        { workflow: oneStep(3) });
+    let s = await advance(deps);
+    assert.equal(s.pendingApproval?.subject, "retries");
+    assert.match(s.pendingApproval!.reason, /failed the same way/);
+    assert.equal(engine.requests.length, 2);
+});
+
+test("task ids are readable slugs, including Vietnamese goals", () => {
+    let repo = tempRepo();
+    let { taskId } = createTask({ repo, flowDir: join(repo, ".flow") }, new CliGit(), "bugfix", "Tôi là ai? Sửa đăng nhập",
+        new Date("2026-09-25T09:17:12Z"));
+    assert.equal(taskId, "20260925-091712-toi-la-ai-sua-dang-nhap");
 });
 
 test("unknown checks are rejected when the workflow loads", () => {
