@@ -100,7 +100,7 @@ jobs:
         run: corepack enable
 
       - name: Set up Vite+, Node.js and dependencies
-        uses: voidzero-dev/setup-vp@313600b80b104eadebb9111787d37a2e83e014ca # v1.17.0
+        uses: voidzero-dev/setup-vp@24d870228786dc83ae73482406bdd1e7befaec14 # v1.21.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: true
@@ -124,7 +124,7 @@ jobs:
           packages/workshop-evals/.wrangler/evals/results.json "$EVAL_TRIALS"
 
       - name: Cache the baseline for pull requests on this commit
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: workshop-evals-baseline-${{ github.sha }}-${{ env.EVAL_TRIALS }}
           path: packages/workshop-evals/.wrangler/evals/results.json
@@ -189,7 +189,7 @@ jobs:
 
       - name: Set up Vite+, Node.js and dependencies
         if: matrix.revision == 'candidate' || steps.stored.outputs.artifact-id == ''
-        uses: voidzero-dev/setup-vp@313600b80b104eadebb9111787d37a2e83e014ca # v1.17.0
+        uses: voidzero-dev/setup-vp@24d870228786dc83ae73482406bdd1e7befaec14 # v1.21.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: true
@@ -220,7 +220,7 @@ jobs:
 
       - name: Cache the baseline for other pull requests on this base
         if: steps.complete.outcome == 'success'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: workshop-evals-baseline-${{ matrix.sha }}-${{ env.EVAL_TRIALS }}
           path: packages/workshop-evals/.wrangler/evals/results.json
@@ -229,7 +229,7 @@ jobs:
           retention-days: 90
 
       - name: Upload current-run ${{ matrix.revision }} trajectories
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: workshop-evals-${{ matrix.revision }}
           path: packages/workshop-evals/.wrangler/evals/results.json
@@ -260,20 +260,20 @@ jobs:
         run: corepack enable
 
       - name: Set up Vite+, Node.js and dependencies
-        uses: voidzero-dev/setup-vp@313600b80b104eadebb9111787d37a2e83e014ca # v1.17.0
+        uses: voidzero-dev/setup-vp@24d870228786dc83ae73482406bdd1e7befaec14 # v1.21.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: true
           run-install: true
 
       - name: Download baseline trajectories
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: workshop-evals-baseline
           path: artifacts/baseline
 
       - name: Download candidate trajectories
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: workshop-evals-candidate
           path: artifacts/candidate
@@ -291,7 +291,7 @@ jobs:
           cat artifacts/comparison/comparison.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload comparison
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: workshop-evals-comparison
           path: artifacts/comparison
@@ -351,19 +351,19 @@ jobs:
         run: echo /artifacts/ >> .git/info/exclude
 
       - name: Download baseline trajectories
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: workshop-evals-baseline
           path: artifacts/baseline
 
       - name: Download candidate trajectories
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: workshop-evals-candidate
           path: artifacts/candidate
 
       - name: Download deterministic comparison
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: workshop-evals-comparison
           path: artifacts/comparison
@@ -372,7 +372,7 @@ jobs:
         run: corepack enable
 
       - name: Set up Vite+, Node.js and dependencies
-        uses: voidzero-dev/setup-vp@313600b80b104eadebb9111787d37a2e83e014ca # v1.17.0
+        uses: voidzero-dev/setup-vp@24d870228786dc83ae73482406bdd1e7befaec14 # v1.21.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: true
